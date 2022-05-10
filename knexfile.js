@@ -6,11 +6,11 @@
 module.exports = {
 
   development: {
-    client: 'postgresql',
+    client: 'pg',
     connection: {
-      database: 'my_db',
-      user:     'postgres',
-      password: 'password'
+      database: 'blog_app',
+      user:     'ng',
+      password: 'abc'
     }
   },
 
@@ -42,7 +42,8 @@ module.exports = {
       max: 10
     },
     migrations: {
-      tableName: 'knex_migrations'
+      tableName: 'knex_migrations',
+      directory: './migrations'
     }
   }
 
