@@ -24,8 +24,16 @@ router.post('/login', forLogout, async(req, res) => {
   }
 });
 
-router.post('/signup', forLogout, async(req, res) => {
-  const schemaValidate = 
+router.post('/signup', async(req, res) => {
+  const schemaValidate = joi.object({
+    name: joi.string().max(30),
+    email: joi.string().email().max(50).required(),
+    password: joi.string().min(8).max(16).required()
+  })
+  const schemaValidated = schemaValidate.validate(req.body);
+  if (schemaValidated.error) {
+    return res.status(415).json(schemaValidated.error.details)
+  }
   try {
     const result = await User.newUser(req.body);
     res.status(201).json(result);
