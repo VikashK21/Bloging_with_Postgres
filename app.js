@@ -3,6 +3,7 @@ const createError = require('http-errors');
 const morgan = require('morgan');
 require('dotenv').config();
 
+const PORT = process.env.PORT || 3000;
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -12,7 +13,8 @@ app.get('/', async (req, res, next) => {
   res.send({ message: 'Awesome it works 🐻' });
 });
 
-app.use('/api', require('./routes/api.route'));
+app.use('/users', require('./routes/users.api.route'));
+app.use('/blog_app', require('./routes/blogs.api.route'));
 
 app.use((req, res, next) => {
   next(createError.NotFound());
@@ -26,5 +28,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 @ http://localhost:${PORT}`));
+app.listen(PORT, () => console.log({
+  HOME: `http://localhost:${PORT}`,
+  User_Home: `http://localhost:${PORT}/users`,
+  Blog_App_Home: `http://localhost:${PORT}/blog_app`
+}));

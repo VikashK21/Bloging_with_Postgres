@@ -1,4 +1,3 @@
-const res = require('express/lib/response');
 const knex = require('../config/db.config');
 const Users = knex('users');
 
