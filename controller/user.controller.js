@@ -1,20 +1,25 @@
+const res = require('express/lib/response');
 const knex = require('../config/db.config');
 const Users = knex('users');
 
 module.exports = class UserCtrl {
     async users() {
-        return await Users;
+        try {
+            return await Users;
+        } catch (err) {
+            return err.message;    
+        }
     }
     
     async newUser(data) {
         try {
             const result = await Users.where({email: data.email, password: data.password});
-            if (result.length<0) {
-                const result2 = await Users.insert(data);
-                return result2;
+            if (result.length===0) {
+                await Users.insert(data);
+                return 'You are successfully Signed Up.'
             }
             else {
-                return 'This users already exisy!!';
+                return 'This user already exists!!';
             }
         } catch (err) {
             return err.message;
@@ -24,10 +29,30 @@ module.exports = class UserCtrl {
 
     async login(data) {
         try {
-            const result = await Users;
+            const result = await Users.where(data);
             return result
         } catch (err) {
             return err.message;            
+        }
+    }
+
+    async deleteAcc(id) {
+        try {
+            await Users.where({id}).del()
+            return 'The account is no longer.'
+        } catch (err) {
+            return err.message;
+            
+        }
+    }
+
+    async forgetPass(id, pass) {
+        try {
+            await Users.where({id}).update({password: pass});
+            return 'You password is successfully changed.'
+        } catch (err) {
+            return err.message;
+            
         }
     }
 }
