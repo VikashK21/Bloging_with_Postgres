@@ -38,8 +38,8 @@ module.exports = class UserCtrl {
 
     async deleteAcc(id) {
         try {
-            await Users.where({id}).del()
-            return 'The account is no longer.'
+            const result = await Users.where({id}).del()
+            return result;
         } catch (err) {
             return err.message;
             
@@ -48,8 +48,8 @@ module.exports = class UserCtrl {
 
     async forgetPass(id, pass) {
         try {
-            await Users.where({id}).update({password: pass});
-            return 'You password is successfully changed.'
+            const result = await Users.where({id}).update({password: pass});
+            return 'Your password is successfully changed.';
         } catch (err) {
             return err.message;
             
