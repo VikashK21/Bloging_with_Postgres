@@ -9,6 +9,14 @@ router.get('/', async (req, res) => {
 });
 
 router.post('/login', forLogout, async(req, res) => {
+  const schemaValidate = joi.object({
+    email: joi.string().email().max(50).required(),
+    password: joi.string().min(8).max(16).required()
+  })
+  const schemaValidated = schemaValidate.validate(req.body);
+  if (schemaValidated.error) {
+    return res.status(415).json(schemaValidated.error.details)
+  }
   try {
     const result = await User.login(req.body);
     if (typeof(result)=='object' && result.length>0) {
@@ -60,6 +68,13 @@ router.delete('/delete_acc', authentication, async(req, res) => {
 })
 
 router.patch('/forgert_pass', authentication, async(req, res) => {
+  const schemaValidate = joi.object({
+    password: joi.string().min(8).max(16).required()
+  })
+  const schemaValidated = schemaValidate.validate(req.body);
+  if (schemaValidated.error) {
+    return res.status(415).json(schemaValidated.error.details)
+  }
   try {
     const result = await User.forgetPass(req.user_id, req.body.password)
     res.status(200).json(result);
