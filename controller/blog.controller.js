@@ -1,10 +1,14 @@
 const knex = require('../config/db.config');
-const Blog_ = knex('blogging');
 
 module.exports = class Blog {
+    constructor() {
+        this.Blog_s = knex('blogging');
+
+    }
 
     async blogs() {
-        const result = await await Blog_;
+        const result = await this.Blog_s;
+        console.log(result);
         return result;
     }
 
@@ -13,30 +17,30 @@ module.exports = class Blog {
             if (data.hasOwnProperty('likes') && data.likes) {
                 data.likes = 1;
                 data.dislikes = 0;
-                data['reactors_id'] = [userId];
+                data['reactors_id'] = JSON.stringify([userId]);
             }
-            if (data.hasOwnProperty('dislikes') && data.dislikes) {
+            else if (data.hasOwnProperty('dislikes') && data.dislikes) {
                 data.likes = 0;
                 data.dislikes = 1;
-                data['reactors_id'] = [userId];
+                data['reactors_id'] = JSON.stringify([userId]);
             }
             else {
                 data.likes = 0;
                 data.dislikes = 0;
-                data['reactors_id'] = []
+                data['reactors_id'] = JSON.stringify([])
             }
         }
         else {
             data['likes'] = 0;
             data['dislikes'] = 0;
-            data['reactors_id'] = []
+            data['reactors_id'] = JSON.stringify([])
         }
         return data;
     }
     async newPost(userId, data) {
         try {
             data = await this.likesDislikesValue(data, userId);
-            const result = await Blog_.insert({ ...data, user_id: userId });
+            const result = await this.Blog_s.insert({ ...data, user_id: userId });
             return 'Your new post is successfully posted.';
         } catch (err) {
             return err.message;
@@ -46,19 +50,27 @@ module.exports = class Blog {
 
     async likeDislikePost(id, data, userId) {
         try {
-            const result = await Blog_.where({ id });
+            const result = await this.Blog_s.where({ id });
+            console.log(result);
             if (result.length > 0) {
+                // console.log(typeof result[0].reactors_id, 'are you here.');
+                console.log('hey herer...', data);
                 const ld = await this.likesDislikesValue(data, userId);
-                await Blog_.where({ id }).update({
-                    ...data,
-                    likes: result.likes + ld.likes,
-                    dislikes: result.dislikes + ld.dislikes,
-                    reactors_id: [
-                        ...result.reactors_id,
-                        ...ld.reactors_id
-                    ]
-                })
-                return 'Your reaction is recorded successfully.'
+                const lis = result[0].reactors_id
+                console.log(lis, 'lis');
+                console.log(ld, 'ld');
+                if (lis.length < 1 || !lis.includes(userId)) {
+                    lis.push(userId)
+                    console.log(lis, 'lis');
+                    await this.Blog_s.where({ id }).update({
+                        ...data,
+                        likes: result[0].likes + ld.likes,
+                        dislikes: result[0].dislikes + ld.dislikes,
+                        reactors_id: JSON.stringify(lis)
+                    })
+                    return 'Your reaction is recorded successfully.'
+                }
+                return 'You have already reacted on this post!!'
             }
             return 'Please check the ID once, this does not exists!!'
         } catch (err) {

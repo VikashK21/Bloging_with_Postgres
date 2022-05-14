@@ -2,19 +2,15 @@ const jwt = require('jsonwebtoken');
 
 authorization = (data) => {
     const token = jwt.sign(`${data[0].id}`, 'Thisissomestrongpassword');
-    console.log(token);
     return token;
 }
 
 authentication = (req, res, next) => {
     const cookie = req.headers.cookie;
-    console.log(cookie);
     if (cookie) {
         const token = cookie.split('=')[1];
-        console.log(token);
         const id = jwt.verify(token, 'Thisissomestrongpassword')
-        console.log(id);
-        req.user_id = id;
+        req.user_id = Number(id);
         next()
     }
     else {
@@ -24,9 +20,10 @@ authentication = (req, res, next) => {
 
 forLogout = (req, res, next) => {
     if (req.headers.cookie) {
-        res.send('You are already Logged In!!')
+        return res.send('You are already Logged In!!')
     }
     next();
+    
 }
 
 

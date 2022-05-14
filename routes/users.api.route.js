@@ -4,8 +4,8 @@ const {authentication, authorization, forLogout} = require('../auth/security.aut
 const joi = require('joi');
 
 
-router.get('/', async (req, res) => {
-  res.send({totalRows: (await User.users()).length, data: await User.users()});
+router.get('/users', authentication, async (req, res) => {
+  res.send({totalRows: (await User.allusers()).length, data: await User.allusers()});
 });
 
 router.post('/login', forLogout, async(req, res) => {
@@ -19,9 +19,10 @@ router.post('/login', forLogout, async(req, res) => {
   }
   try {
     const result = await User.login(req.body);
+    console.log(result, 'login');
     if (typeof(result)=='object' && result.length>0) {
       const token = await authorization(result)
-      res.cookie('token', token).status(200).json(result)
+      res.cookie('token', token).status(200).send('You are successfully Logged In.')
     }
     else {
       res.status(404).send('The account does not exists!!')
@@ -32,7 +33,7 @@ router.post('/login', forLogout, async(req, res) => {
   }
 });
 
-router.post('/signup', async(req, res) => {
+router.post('/signup', forLogout, async(req, res) => {
   const schemaValidate = joi.object({
     name: joi.string().max(30),
     email: joi.string().email().max(50).required(),
@@ -44,7 +45,7 @@ router.post('/signup', async(req, res) => {
   }
   try {
     const result = await User.newUser(req.body);
-    res.status(201).json(result);
+    res.status(201).send(result);
     
   } catch (err) {
     res.status(406).send(err.message)
@@ -77,7 +78,7 @@ router.patch('/forgert_pass', authentication, async(req, res) => {
   }
   try {
     const result = await User.forgetPass(req.user_id, req.body.password)
-    res.status(200).json(result);
+    res.status(200).send(result);
   } catch (err) {
     res.status(304).send(err.message);
   }

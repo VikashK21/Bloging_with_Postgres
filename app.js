@@ -9,12 +9,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
 
-app.get('/', async (req, res, next) => {
-  res.send({ message: 'Awesome it works 🐻' });
-});
-
-app.use('/users', require('./routes/users.api.route'));
-app.use('/blog_app', require('./routes/blogs.api.route'));
+// app.use('/api', require('./routes/users.api.route'));
+app.use('/api', require('./routes/blogs.api.route'));
 
 app.use((req, res, next) => {
   next(createError.NotFound());
@@ -27,6 +23,12 @@ app.use((err, req, res, next) => {
     message: err.message,
   });
 });
+
+
+app.get('/', async (req, res, next) => {
+  res.send({ message: 'Awesome it works 🐻' });
+});
+
 
 app.listen(PORT, () => console.log({
   HOME: `http://localhost:${PORT}`,
